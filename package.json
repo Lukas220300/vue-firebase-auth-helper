@@ -1,0 +1,24 @@
+{
+  "name": "vue-firebase-auth-helper",
+  "version": "1.0.0",
+  "description": "Wrapper for interaction from vue to firebase auth",
+  "scripts": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Lukas220300/vue-firebase-auth-helper.git"
+  },
+  "keywords": [
+    "vue",
+    "firebase"
+  ],
+  "author": "lukas.schoenbeck@edu.fhdw.de",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Lukas220300/vue-firebase-auth-helper/issues"
+  },
+  "homepage": "https://github.com/Lukas220300/vue-firebase-auth-helper#readme",
+  "dependencies": {
+    "axios": "^0.25.0",
+    "firebase": "^9.6.3"
+  }
+}
