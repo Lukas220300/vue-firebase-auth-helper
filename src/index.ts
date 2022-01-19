@@ -187,4 +187,8 @@ export default class VueFirebaseAuth {
         this.localStorage.clearAccessData()
     }
 
+    getFirebaseApp(): FirebaseApp {
+        return this.firebaseApp
+    }
+
 }
