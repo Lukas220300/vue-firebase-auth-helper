@@ -1,4 +1,4 @@
-import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
+import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword } from "firebase/auth";
 import { initializeApp, FirebaseApp } from "firebase/app";
 import {Axios} from "axios";
 
@@ -114,27 +114,43 @@ export default class VueFirebaseAuth {
         const auth = getAuth();
         signInWithEmailAndPassword(auth, username, password)
             .then((userCredential:any) => {
-                this.localStorage.accessToken.setAccessToken(userCredential._tokenResponse.idToken, userCredential._tokenResponse.expiresIn)
-                this.localStorage.refreshToken.setRefreshToken(userCredential._tokenResponse.refreshToken)
-
-                const user = {
-                    email : userCredential.user.email,
-                    displayName : userCredential.user.displayName,
-                    emailVerified : userCredential.user.emailVerified,
-                    isAnonymous : userCredential.user.isAnonymous,
-                    metadata : userCredential.user.metadata,
-                    phoneNumber : userCredential.user.phoneNumber,
-                    photoURL : userCredential.user.photoURL,
-                    providerId : userCredential.user.providerId,
-                    uid : userCredential.user.uid,
-                }
-                this.localStorage.user.setUser(user)
-
+                this.handleUserCredential(userCredential)
                 onSuccess(userCredential.user)
             })
             .catch((error) => {
                 onError(error)
             });
+    }
+
+    register(username:string, password:string, onSuccess:any, onError:any) {
+        const auth = getAuth();
+        createUserWithEmailAndPassword(auth,username,password)
+            .then((userCredential:any) => {
+                this.handleUserCredential(userCredential)
+                onSuccess(userCredential.user)
+            })
+            .catch((error:any) => {
+                onError(error)
+            })
+
+    }
+
+    handleUserCredential(userCredential: any) {
+        this.localStorage.accessToken.setAccessToken(userCredential._tokenResponse.idToken, userCredential._tokenResponse.expiresIn)
+        this.localStorage.refreshToken.setRefreshToken(userCredential._tokenResponse.refreshToken)
+
+        const user = {
+            email : userCredential.user.email,
+            displayName : userCredential.user.displayName,
+            emailVerified : userCredential.user.emailVerified,
+            isAnonymous : userCredential.user.isAnonymous,
+            metadata : userCredential.user.metadata,
+            phoneNumber : userCredential.user.phoneNumber,
+            photoURL : userCredential.user.photoURL,
+            providerId : userCredential.user.providerId,
+            uid : userCredential.user.uid,
+        }
+        this.localStorage.user.setUser(user)
     }
 
     getUser() {
