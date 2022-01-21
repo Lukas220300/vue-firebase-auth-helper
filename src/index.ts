@@ -103,9 +103,9 @@ export default class VueFirebaseAuth {
                 }
             },
             clearAccessData: () => {
-                localStorage.accessToken.clearAccessToken()
-                localStorage.refreshToken.clearRefreshToken()
-                localStorage.user.clearUser()
+                this.localStorage.accessToken.clearAccessToken()
+                this.localStorage.refreshToken.clearRefreshToken()
+                this.localStorage.user.clearUser()
             }
         }
     }
