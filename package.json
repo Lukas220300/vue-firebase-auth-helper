@@ -1,6 +1,6 @@
 {
   "name": "vue-firebase-auth-helper",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "description": "Wrapper for interaction from vue to firebase auth",
   "scripts": {},
   "repository": {
