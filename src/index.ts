@@ -162,7 +162,9 @@ export default class VueFirebaseAuth {
         if(
             !this.localStorage.accessToken.getAccessToken() ||
             !this.localStorage.accessToken.getExpireTimeStamp() ||
-            this.localStorage.accessToken.getExpireTimeStamp() <= this.getCurrentTimeStamp()
+            this.localStorage.accessToken.getExpireTimeStamp() <= this.getCurrentTimeStamp()||
+            this.localStorage.accessToken.getAccessToken() === 'undefined' ||
+            this.localStorage.accessToken.getExpireTimeStamp() === 'NaN'
         ) {
             this.refreshAccessTokenWithRefreshToken()
                 .then(successfully => {
@@ -175,7 +177,7 @@ export default class VueFirebaseAuth {
 
     async refreshAccessTokenWithRefreshToken() {
         const refreshToken = this.localStorage.refreshToken.getRefreshToken()
-        if(!refreshToken) {
+        if(!refreshToken || refreshToken === 'NaN') {
             return false
         }
         return await this.httpClient.post('https://securetoken.googleapis.com/v1/token?key=' + this.apiKey, {
@@ -192,6 +194,7 @@ export default class VueFirebaseAuth {
     }
 
     getAccessToken(raw = false) {
+        this.validateAccessData()
         const token = this.localStorage.accessToken.getAccessToken()
         if(raw) {
             return token
