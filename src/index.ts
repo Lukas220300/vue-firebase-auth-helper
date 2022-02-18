@@ -1,6 +1,7 @@
 import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword } from "firebase/auth";
 import { initializeApp, FirebaseApp } from "firebase/app";
 import {Axios} from "axios";
+import {Router} from "vue-router";
 
 export default class VueFirebaseAuth {
 
@@ -19,10 +20,12 @@ export default class VueFirebaseAuth {
     protected static accessTokenExpireKey = 'access_token_expires_at'
 
     protected httpClient: Axios
+    protected router: Router|undefined
+    protected loginRoute: string
 
     protected localStorage: any
 
-    constructor(apiKey:string, authDomain:string, projectId:string, storageBucket:string, messagingSenderId:string, appId:string, httpClient:Axios) {
+    constructor(apiKey:string, authDomain:string, projectId:string, storageBucket:string, messagingSenderId:string, appId:string, httpClient:Axios, loginRoute: string = '/login') {
         this.apiKey = apiKey
         this.authDomain = authDomain
         this.projectId = projectId
@@ -39,8 +42,14 @@ export default class VueFirebaseAuth {
             appId: this.appId,
         })
         this.httpClient = httpClient
+        this.router = undefined
+        this.loginRoute = loginRoute
 
         this.localStorage = this.buildLocalStorageObject()
+    }
+
+    setRouter(router: Router): void {
+        this.router = router
     }
 
     getFirebaseConfiguration () {
@@ -170,6 +179,9 @@ export default class VueFirebaseAuth {
                 .then(successfully => {
                     if(!successfully) {
                         this.localStorage.clearAccessData()
+                        if(this.router) {
+                            this.router.push(this.loginRoute)
+                        }
                     }
                 })
         }

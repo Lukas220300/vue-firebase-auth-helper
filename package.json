@@ -19,6 +19,7 @@
   "homepage": "https://github.com/Lukas220300/vue-firebase-auth-helper#readme",
   "dependencies": {
     "axios": "^0.25.0",
-    "firebase": "^9.6.3"
+    "firebase": "^9.6.3",
+    "vue-router": "^4.0.12"
   }
 }
