@@ -1,5 +1,5 @@
-import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword } from "firebase/auth";
-import { initializeApp, FirebaseApp } from "firebase/app";
+import {getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword} from "firebase/auth";
+import {initializeApp, FirebaseApp} from "firebase/app";
 import {Axios} from "axios";
 import {Router} from "vue-router";
 
@@ -20,12 +20,12 @@ export default class VueFirebaseAuth {
     protected static accessTokenExpireKey = 'access_token_expires_at'
 
     protected httpClient: Axios
-    protected router: Router|undefined
+    protected router: Router | undefined
     protected loginRoute: string
 
     protected localStorage: any
 
-    constructor(apiKey:string, authDomain:string, projectId:string, storageBucket:string, messagingSenderId:string, appId:string, httpClient:Axios, loginRoute: string = '/login') {
+    constructor(apiKey: string, authDomain: string, projectId: string, storageBucket: string, messagingSenderId: string, appId: string, httpClient: Axios, loginRoute: string = '/login') {
         this.apiKey = apiKey
         this.authDomain = authDomain
         this.projectId = projectId
@@ -52,7 +52,7 @@ export default class VueFirebaseAuth {
         this.router = router
     }
 
-    getFirebaseConfiguration () {
+    getFirebaseConfiguration() {
         return {
             apiKey: this.apiKey,
             authDomain: this.authDomain,
@@ -64,13 +64,13 @@ export default class VueFirebaseAuth {
     }
 
     getCurrentTimeStamp() {
-        return Math.round(new Date().getTime()/1000)
+        return Math.round(new Date().getTime() / 1000)
     }
 
     buildLocalStorageObject() {
         return {
             accessToken: {
-                setAccessToken: (accessToken: string, expiresIn:any) => {
+                setAccessToken: (accessToken: string, expiresIn: any) => {
                     window.localStorage.setItem(VueFirebaseAuth.accessTokenKey, accessToken)
                     window.localStorage.setItem(VueFirebaseAuth.accessTokenExpireKey, (String)(this.getCurrentTimeStamp() + parseInt(expiresIn)))
                 },
@@ -92,7 +92,7 @@ export default class VueFirebaseAuth {
                 clearRefreshToken: () => {
                     window.localStorage.removeItem(VueFirebaseAuth.refreshTokenKey)
                 },
-                getRefreshToken : () => {
+                getRefreshToken: () => {
                     return window.localStorage.getItem(VueFirebaseAuth.refreshTokenKey)
                 },
             },
@@ -105,7 +105,7 @@ export default class VueFirebaseAuth {
                 },
                 getUser: () => {
                     const userJson = window.localStorage.getItem(VueFirebaseAuth.userKey)
-                    if(userJson) {
+                    if (userJson) {
                         return JSON.parse(userJson)
                     }
                     return userJson;
@@ -119,10 +119,10 @@ export default class VueFirebaseAuth {
         }
     }
 
-    login(username:string, password:string, onSuccess:any, onError:any) {
+    login(username: string, password: string, onSuccess: any, onError: any) {
         const auth = getAuth();
         signInWithEmailAndPassword(auth, username, password)
-            .then((userCredential:any) => {
+            .then((userCredential: any) => {
                 this.handleUserCredential(userCredential)
                 onSuccess(userCredential.user)
             })
@@ -131,14 +131,14 @@ export default class VueFirebaseAuth {
             });
     }
 
-    register(username:string, password:string, onSuccess:any, onError:any) {
+    register(username: string, password: string, onSuccess: any, onError: any) {
         const auth = getAuth();
-        createUserWithEmailAndPassword(auth,username,password)
-            .then((userCredential:any) => {
+        createUserWithEmailAndPassword(auth, username, password)
+            .then((userCredential: any) => {
                 this.handleUserCredential(userCredential)
                 onSuccess(userCredential.user)
             })
-            .catch((error:any) => {
+            .catch((error: any) => {
                 onError(error)
             })
 
@@ -149,38 +149,40 @@ export default class VueFirebaseAuth {
         this.localStorage.refreshToken.setRefreshToken(userCredential._tokenResponse.refreshToken)
 
         const user = {
-            email : userCredential.user.email,
-            displayName : userCredential.user.displayName,
-            emailVerified : userCredential.user.emailVerified,
-            isAnonymous : userCredential.user.isAnonymous,
-            metadata : userCredential.user.metadata,
-            phoneNumber : userCredential.user.phoneNumber,
-            photoURL : userCredential.user.photoURL,
-            providerId : userCredential.user.providerId,
-            uid : userCredential.user.uid,
+            email: userCredential.user.email,
+            displayName: userCredential.user.displayName,
+            emailVerified: userCredential.user.emailVerified,
+            isAnonymous: userCredential.user.isAnonymous,
+            metadata: userCredential.user.metadata,
+            phoneNumber: userCredential.user.phoneNumber,
+            photoURL: userCredential.user.photoURL,
+            providerId: userCredential.user.providerId,
+            uid: userCredential.user.uid,
         }
         this.localStorage.user.setUser(user)
     }
 
-    getUser() {
-        this.validateAccessData()
+    getUser(redirectMode: boolean = true) {
+        this.validateAccessData(redirectMode)
         return this.localStorage.user.getUser();
     }
 
-    validateAccessData() {
-        if(
+    validateAccessData(redirectMode: boolean = true) {
+        if (
             !this.localStorage.accessToken.getAccessToken() ||
             !this.localStorage.accessToken.getExpireTimeStamp() ||
-            this.localStorage.accessToken.getExpireTimeStamp() <= this.getCurrentTimeStamp()||
+            this.localStorage.accessToken.getExpireTimeStamp() <= this.getCurrentTimeStamp() ||
             this.localStorage.accessToken.getAccessToken() === 'undefined' ||
             this.localStorage.accessToken.getExpireTimeStamp() === 'NaN'
         ) {
             this.refreshAccessTokenWithRefreshToken()
                 .then(successfully => {
-                    if(!successfully) {
+                    if (!successfully) {
                         this.localStorage.clearAccessData()
-                        if(this.router) {
-                            this.router.push(this.loginRoute)
+                        if (redirectMode) {
+                            if (this.router) {
+                                this.router.push(this.loginRoute)
+                            }
                         }
                     }
                 })
@@ -189,13 +191,13 @@ export default class VueFirebaseAuth {
 
     async refreshAccessTokenWithRefreshToken() {
         const refreshToken = this.localStorage.refreshToken.getRefreshToken()
-        if(!refreshToken || refreshToken === 'NaN') {
+        if (!refreshToken || refreshToken === 'NaN') {
             return false
         }
         return await this.httpClient.post('https://securetoken.googleapis.com/v1/token?key=' + this.apiKey, {
-            grant_type : 'refresh_token',
-            refresh_token : refreshToken,
-        }).then((response:any) => {
+            grant_type: 'refresh_token',
+            refresh_token: refreshToken,
+        }).then((response: any) => {
             this.localStorage.accessToken.setAccessToken(response.access_token, response.expires_in)
             this.localStorage.refreshToken.setRefreshToken(response.refresh_token)
             return true
@@ -208,7 +210,7 @@ export default class VueFirebaseAuth {
     getAccessToken(raw = false) {
         this.validateAccessData()
         const token = this.localStorage.accessToken.getAccessToken()
-        if(raw) {
+        if (raw) {
             return token
         }
         return 'Bearer ' + token
